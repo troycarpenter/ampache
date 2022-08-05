@@ -46,8 +46,7 @@ if (isset($user->id)) {
 <div id="now_playing">
     <?php show_now_playing(); ?>
 </div> <!-- Close Now Playing Div -->
-<?php
-} ?>
+<?php } ?>
 <!-- Randomly selected Albums of the Moment -->
 <?php if (AmpConfig::get('home_moment_albums')) {
     echo Ajax::observe('window', 'load', Ajax::action('?page=index&action=random_albums', 'random_albums')); ?>
@@ -73,8 +72,8 @@ if (isset($user->id)) {
     <?php
         $data = Song::get_recently_played();
         Song::build_cache(array_keys($data));
-        $user_id = (!empty(Core::get_global('user'))) ? Core::get_global('user')->id : -1;
+        $user_id   = (!empty(Core::get_global('user'))) ? Core::get_global('user')->id : -1;
+        $ajax_page = 'index';
         require_once Ui::find_template('show_recently_played.inc.php'); ?>
 </div>
-<?php
-    } ?>
+<?php } ?>

@@ -61,7 +61,7 @@ class TVShow_Episode extends Video
 
     public function getId(): int
     {
-        return (int) $this->id;
+        return (int)$this->id;
     }
 
     /**
@@ -198,7 +198,7 @@ class TVShow_Episode extends Video
     }
 
     /**
-     * get_keywords
+     * Get item keywords for metadata searches.
      * @return array
      */
     public function get_keywords()

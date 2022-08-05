@@ -124,7 +124,7 @@ class Label extends database_object implements library_item
 
     public function getId(): int
     {
-        return (int) $this->id;
+        return (int)$this->id;
     }
 
     /**
@@ -220,7 +220,7 @@ class Label extends database_object implements library_item
     }
 
     /**
-     * get_keywords
+     * Get item keywords for metadata searches.
      * @return array
      */
     public function get_keywords()

@@ -32,12 +32,12 @@ use Ampache\Module\Util\Ui;
 
 global $dic;
 
-$ajax_page = $ajax_page ?? 'index';
+$ajax_page = $ajax_page ?? 'stats';
 $user_id   = $user_id ?? -1;
-$link      = AmpConfig::get('use_rss') ? ' ' . AmpacheRss::get_display('recently_played', $user_id) : '';
+$link      = AmpConfig::get('use_rss') ? ' ' . AmpacheRss::get_display('recently_skipped', $user_id) : '';
 $web_path  = AmpConfig::get('web_path');
 $is_admin  = Access::check('interface', 100);
-UI::show_box_top(T_('Recently Played') . $link, 'box box_recently_played'); ?>
+UI::show_box_top(T_('Recently Skipped') . $link, 'box box_recently_skipped'); ?>
 <table class="tabledata striped-rows">
     <thead>
     <tr class="th-top">
@@ -137,7 +137,7 @@ UI::show_box_top(T_('Recently Played') . $link, 'box box_recently_played'); ?>
                         </a>
                     </td>
                 <?php } ?>
-                <td class="cel_lastplayed"><?php echo $time_string; ?></td>
+                <td class="cel_lastskipped"><?php echo $time_string; ?></td>
                 <?php if ($is_admin) { ?>
                     <td class="cel_agent">
                     <?php if (!empty($agent)) {
@@ -146,7 +146,7 @@ UI::show_box_top(T_('Recently Played') . $link, 'box box_recently_played'); ?>
                     <?php
             } ?>
                     <td class="cel_delete">
-                        <?php echo Ajax::button('?page=stats&action=delete_play&activity_id=' . $row['activity_id'], 'delete', T_('Delete'), 'activity_remove_' . $row['activity_id']); ?>
+                        <?php echo Ajax::button('?page=stats&action=delete_skip&activity_id=' . $row['activity_id'], 'delete', T_('Delete'), 'activity_remove_' . $row['activity_id']); ?>
                     </td>
                 <?php } ?>
             </tr>
@@ -171,7 +171,7 @@ UI::show_box_top(T_('Recently Played') . $link, 'box box_recently_played'); ?>
         <?php if ($user_id > 0) { ?>
             <th class="cel_username"><?php echo T_('Username'); ?></th>
         <?php } ?>
-        <th class="cel_lastplayed"><?php echo T_('Last Played'); ?></th>
+        <th class="cel_lastskipped"><?php echo T_('Last Played'); ?></th>
         <?php if ($is_admin) { ?>
             <th class="cel_agent"><?php echo T_('Agent'); ?></th>
             <th class="cel_delete"></th>
@@ -179,14 +179,6 @@ UI::show_box_top(T_('Recently Played') . $link, 'box box_recently_played'); ?>
     </tr>
     </tfoot>
 </table>
-<div id="recent_more">
-    <?php
-    $user_id_a = '';
-    if (isset($user_id) && !empty($user_id)) {
-        $user_id_a = "&amp;user_id=" . scrub_out($user_id);
-    } ?>
-    <a href="<?php echo $web_path; ?>/stats.php?action=recent<?php echo $user_id_a; ?>"><?php echo T_('More'); ?></a>
-</div>
 <script>
     $(document).ready(function () {
         $("a[rel^='prettyPhoto']").prettyPhoto({social_tools:false});

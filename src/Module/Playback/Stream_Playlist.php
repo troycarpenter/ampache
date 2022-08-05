@@ -120,6 +120,7 @@ class Stream_Playlist
     {
         debug_event("stream_playlist.class", "Adding urls to {" . $this->id . "}...", 5);
         $sql         = '';
+        $fields      = array();
         $values      = array();
         $holders_arr = array();
 
@@ -319,7 +320,7 @@ class Stream_Playlist
                     $url['title'] = 'Random URL';
                     break;
                 default:
-                    $url['title'] = Stream_Url::get_title($url);
+                    $url['title'] = Stream_Url::get_title($url['url']);
                     $url['time']  = -1;
                     break;
             }

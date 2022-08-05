@@ -31,8 +31,11 @@ namespace Ampache\Repository\Model;
  */
 interface library_item extends playable_item
 {
+    public function getId(): int;
+
     /**
-     * @return mixed
+     * Get item keywords for metadata searches.
+     * @return array
      */
     public function get_keywords();
 

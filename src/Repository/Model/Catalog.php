@@ -267,7 +267,7 @@ abstract class Catalog extends database_object
 
     public function getId(): int
     {
-        return (int) $this->id;
+        return (int)$this->id;
     }
 
     /**
@@ -529,7 +529,7 @@ abstract class Catalog extends database_object
     /**
      * filter_count
      * This returns the number of filters.
-     * @return string
+     * @return int
      */
     public static function filter_count()
     {
@@ -1179,6 +1179,7 @@ abstract class Catalog extends database_object
             return 0;
         }
 
+        /** @var Catalog $classname */
         if (!$classname::create_type($insert_id, $data)) {
             $sql = 'DELETE FROM `catalog` WHERE `id` = ?';
             Dba::write($sql, array($insert_id));
