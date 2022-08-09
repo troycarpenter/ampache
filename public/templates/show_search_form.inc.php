@@ -21,6 +21,7 @@
  */
 
 use Ampache\Config\AmpConfig;
+use Ampache\Repository\Model\Search;
 use Ampache\Repository\Model\Video;
 use Ampache\Module\Authorization\Access;
 use Ampache\Module\Util\Ui;
@@ -37,7 +38,7 @@ $browse_id       = (isset($browse))
 $currentType     = (isset($searchType))
     ? $searchType
     : (string) filter_input(INPUT_GET, 'type', FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES);
-$currentType     = (in_array($currentType, array('song', 'album', 'artist', 'label', 'playlist', 'video')))
+$currentType     = (in_array($currentType, Search::VALID_TYPES))
     ? $currentType
     : null;
 if (!$currentType) {
@@ -64,6 +65,14 @@ Ui::show_box_top(T_('Search Ampache') . "...", 'box box_advanced_search'); ?>
     <a class="category <?php echo ($currentType == 'playlist') ? 'current' : '' ?>" href="<?php echo $web_path; ?>/search.php?type=playlist">
         <?php echo T_('Playlists'); ?>
     </a>
+    <?php if (AmpConfig::get('podcast')) { ?>
+        <a class="category <?php echo ($currentType == 'podcast_episode') ? 'current' : '' ?>" href="<?php echo $web_path; ?>/search.php?type=podcast_episode">
+            <?php echo T_('Podcast Episodes'); ?>
+        </a>
+        <a class="category <?php echo ($currentType == 'podcast') ? 'current' : '' ?>" href="<?php echo $web_path; ?>/search.php?type=podcast">
+            <?php echo T_('Podcasts'); ?>
+        </a>
+    <?php } ?>
     <?php if (AmpConfig::get('allow_video') && $videoRepository->getItemCount(Video::class)) { ?>
         <a class="category <?php echo ($currentType == 'video') ? 'current' : '' ?>" href="<?php echo $web_path; ?>/search.php?type=video">
             <?php echo T_('Videos'); ?>

@@ -108,6 +108,7 @@ $state_home_information   = (!isset($_COOKIE['sb_home_information']) || $_COOKIE
             <?php } ?>
             <?php if ($allowPodcast) { ?>
                 <li id="sb_home_browse_podcast"><a href="<?php echo $web_path; ?>/browse.php?action=podcast"><?php echo $t_podcasts ?></a></li>
+                <li id="sb_home_browse_podcast"><a href="<?php echo $web_path; ?>/browse.php?action=podcast_episode"><?php echo $t_podcastEpisodes ?></a></li>
             <?php } ?>
             <?php if ($allowVideo) { ?>
                 <li id="sb_home_browse_video"><a href="<?php echo $web_path; ?>/browse.php?action=video"><?php echo $t_videos ?></a></li>
@@ -173,6 +174,10 @@ $state_home_information   = (!isset($_COOKIE['sb_home_information']) || $_COOKIE
               <li id="sb_home_search_label"><a href="<?php echo $web_path; ?>/search.php?type=label"><?php echo $t_labels; ?></a></li>
           <?php } ?>
               <li id="sb_home_search_playlist"><a href="<?php echo $web_path; ?>/search.php?type=playlist"><?php echo $t_playlists; ?></a></li>
+            <?php if ($allowPodcast) { ?>
+                <li id="sb_home_search_podcast"><a href="<?php echo $web_path; ?>/search.php?type=podcast"><?php echo $t_podcasts ?></a></li>
+                <li id="sb_home_search_podcast_episode"><a href="<?php echo $web_path; ?>/search.php?type=podcast_episode"><?php echo $t_podcastEpisodes ?></a></li>
+            <?php } ?>
           <?php if ($allowVideo) { ?>
               <li id="sb_home_search_video"><a href="<?php echo $web_path; ?>/search.php?type=video"><?php echo $t_videos ?></a></li>
           <?php } ?>
