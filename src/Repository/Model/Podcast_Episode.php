@@ -29,7 +29,6 @@ use Ampache\Module\Statistics\Stats;
 use Ampache\Module\System\Dba;
 use Ampache\Module\Util\Ui;
 use Ampache\Module\Util\UtilityFactoryInterface;
-use Ampache\Module\Util\VaInfo;
 use Ampache\Module\Authorization\Access;
 use Ampache\Config\AmpConfig;
 use Ampache\Module\System\Core;
@@ -163,6 +162,13 @@ class Podcast_Episode extends database_object implements Media, library_item, Ga
                 break;
             default:
                 $this->f_state = '';
+        }
+        // format the file
+        if (!empty($this->file)) {
+            $data          = pathinfo($this->file);
+            $this->type    = strtolower((string)$data['extension']);
+            $this->mime    = Song::type_to_mime($this->type);
+            $this->enabled = true;
         }
 
         // Format the Time
@@ -422,6 +428,17 @@ class Podcast_Episode extends database_object implements Media, library_item, Ga
     } // update_played
 
     /**
+     * update_file
+     * sets the file path
+     * @param boolean $new_played
+     * @param integer $id
+     */
+    public static function update_file($path, $id)
+    {
+        self::_update_item('file', $path, $id, '25');
+    } // update_file
+
+    /**
      * _update_item
      * This is a private function that should only be called from within the podcast episode class.
      * It takes a field, value song_id and level. first and foremost it checks the level
@@ -571,13 +588,15 @@ class Podcast_Episode extends database_object implements Media, library_item, Ga
             if (!empty($file)) {
                 $pinfo = pathinfo($this->source);
                 $file .= DIRECTORY_SEPARATOR . $this->pubdate . '-' . str_replace(array('?', '<', '>', '\\', '/'), '_', $this->title) . '-' . strtok($pinfo['basename'], '?');
-                if (!is_file($file)) {
+                if (Core::get_filesize(Core::conv_lc_file($file)) == 0) {
                     debug_event(self::class, 'Downloading ' . $this->source . ' to ' . $file . ' ...', 4);
                     if (file_put_contents($file, fopen($this->source, 'r'))) {
                         debug_event(self::class, 'Download completed.', 4);
                     }
                 }
-                if (is_file($file)) {
+                if (Core::get_filesize(Core::conv_lc_file($file)) > 0) {
+                    $this->file = $file;
+                    self::update_file($this->file, $this->id);
                     debug_event(self::class, 'Updating details ' . $file . ' ...', 4);
                     Catalog::update_media_from_tags($this);
                 } else {

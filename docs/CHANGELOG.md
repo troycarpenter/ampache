@@ -14,10 +14,13 @@ PHP8.1 has now been fixed up completely and is now full supported before PHP7.4 
 ### Added
 
 * Update Copyright notice to 2022
+* Added a new option 'Random Play' (shuffle) to playlists and smartlists
 * Add 'Recently Skipped' to user pages
 * Add Podcase Episodes to the browse pages and sidebar
 * Translate podcast episode state and some other missing ones
-* Database 550002
+* Allow using a smartplaylist in Democratic play
+* Database 550004
+  * Add system preference `demo_use_search`, Use smartlists for base playlist in Democratic play
   * Add tables `catalog_filter_group` and `catalog_filter_group_map` for catalog filtering by groups
   * Add column `catalog_filter_group` to `user` table to assign a filter group
   * Migrate catalog `filter_user` settings to the `catalog_filter_group` table
@@ -25,15 +28,23 @@ PHP8.1 has now been fixed up completely and is now full supported before PHP7.4 
   * Drop table `user_catalog`
   * Remove `filter_user` from the `catalog` table
 * Search
+* Added more missing groups to search type lists
   * Add `podcast` as a search type
     * Add rule `title`
     * Add rule `podcast_episode` (Search by podcast episode name)
+    * Add rule `time` (Episode length in minutes)
+    * Add rule `state` (Completed, Pending Skipped)
+    * Add rule `file`
+    * Add rule `added`
+    * Add rule `pubdate` (Episode Publication Date)
   * Add `podcast_episode` as a search type
     * Add rule `title`
     * Add rule `podcast` (Search by podcast name)
     * Add rule `time` (Length in minutes)
     * Add rule `state` (Completed, Pending Skipped)
     * Add rule `file`
+    * Add rule `added`
+    * Add rule `pubdate` (Publication Date)
   * Add `genre` as a search type
     * Add rule `title`
 * CLI
@@ -45,6 +56,7 @@ PHP8.1 has now been fixed up completely and is now full supported before PHP7.4 
 * Interface cookies for the sidebar state have new names matching their page and group
 * Made getID function required for library_item's
 * Update codeql-analysis.yml to v2
+* When streaming a Democratic or Random item, redirect to the result
 
 ### Fixed
 
@@ -54,6 +66,8 @@ PHP8.1 has now been fixed up completely and is now full supported before PHP7.4 
 * Lots of docstring and code issues
 * Fixed up deleting plays (and now skips) on the user pages
 * Sorting playlist, user and smartlist names in search rows
+* SQL in get_tags with catalog_filter is disabled
+* A lot of browse filters were missing for certain object types
 * Search
   * SQL might have connected AND and OR incorrectly
   * Metadata search might have badly parsed input
@@ -68,14 +82,26 @@ PHP8.1 has now been fixed up completely and is now full supported before PHP7.4 
   * Add `podcast` as a search type
     * Add rule `title`
     * Add rule `podcast_episode` (Search by podcast episode name)
+    * Add rule `time` (Episode length in minutes)
+    * Add rule `state` (Completed, Pending Skipped)
+    * Add rule `file`
+    * Add rule `added`
+    * Add rule `pubdate` (Episode Publication Date)
   * Add `podcast_episode` as a search type
     * Add rule `title`
     * Add rule `podcast` (Search by podcast name)
     * Add rule `time` (Length in minutes)
     * Add rule `state` (Completed, Pending Skipped)
     * Add rule `file`
+    * Add rule `added`
+    * Add rule `pubdate` (Publication Date)
   * Add `genre` as a search type
     * Add rule `title`
+
+### Fixed
+
+* API4::get_indexes podcast_episode was encoding into the API5 object
+* API4::share_create was unable to share when using lowercase types
 
 ## Ampache 5.4.1-release
 

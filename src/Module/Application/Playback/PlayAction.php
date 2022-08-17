@@ -155,7 +155,7 @@ final class PlayAction implements ApplicationActionInterface
             $type = 'song';
         }
         // random play url can be multiple types but default to song if missing
-        if (empty($type) && $random !== '') {
+        if ($random !== '') {
             $type = 'song';
         }
         // if you don't specify, assume stream
@@ -232,8 +232,7 @@ final class PlayAction implements ApplicationActionInterface
             $password = filter_input(INPUT_GET, 'p', FILTER_SANITIZE_SPECIAL_CHARS);
         }
         $apikey = filter_input(INPUT_GET, 'apikey', FILTER_SANITIZE_SPECIAL_CHARS);
-
-        $user = null;
+        $user   = null;
         // If explicit user authentication was passed
         $user_authenticated = false;
         if (!empty($apikey)) {
@@ -364,11 +363,13 @@ final class PlayAction implements ApplicationActionInterface
                 throw new AccessDeniedException();
             }
 
-            return $playlist->generate_playlist($playlist_type);
+            $playlist->generate_playlist($playlist_type);
+
+            return null;
         }
 
         /**
-         * If we've got a Democratic playlist then get the current song, and redirect to that media files URL
+         * If we've got a Democratic playlist then get the current song and redirect to that media files URL
          */
         if ($demo_id !== '') {
             $democratic = new Democratic($demo_id);
@@ -392,7 +393,7 @@ final class PlayAction implements ApplicationActionInterface
                 } // while we've got the 'new' song in old the array
             } // end if we've got a cooldown
             $media = new Song($object_id);
-            if ($media) {
+            if ($media->id > 0) {
                 // Always remove the play from the list
                 $democratic->delete_from_oid($object_id, $type);
 
@@ -409,25 +410,50 @@ final class PlayAction implements ApplicationActionInterface
 
                 return null;
             }
+            debug_event('play/index', "Error: DEMOCRATIC song could not be found", 3);
+            header('HTTP/1.1 404 File not found');
+
+            return null;
         } // if democratic ID passed
 
         /**
-         * if we are doing random let's pull the random object
+         * if we are doing random let's pull the random object and redirect to that media files URL
          */
         if ($random !== '') {
-            if ((int) Core::get_request('start') < 1) {
+            if (array_key_exists('start', $_REQUEST) && (int)Core::get_request('start') > 0 && array_key_exists('random', $_SESSION) && array_key_exists('last', $_SESSION['random'])) {
+                // continue the current object
+                $object_id = $_SESSION['random']['last'];
+            } else {
+                // get a new random object and redirect to that object
                 if (array_key_exists('random_type', $_REQUEST)) {
                     $rtype = $_REQUEST['random_type'];
                 } else {
                     $rtype = $type;
                 }
-                $object_id = Random::get_single_song($rtype, $user, $object_id);
-                if ($object_id) {
+                $object_id = Random::get_single_song($rtype, $user, (int)$_REQUEST['random_id']);
+                if ($object_id > 0) {
                     // Save this one in case we do a seek
                     $_SESSION['random']['last'] = $object_id;
                 }
-            } else {
-                $object_id = $_SESSION['random']['last'];
+                $media = new Song($object_id);
+                if ($media->id > 0) {
+                    // If the media is disabled
+                    if ((isset($media->enabled) && !make_bool($media->enabled)) || !Core::is_readable(Core::conv_lc_file($media->file))) {
+                        debug_event('play/index', "Error: " . $media->file . " is currently disabled, song skipped", 3);
+                        header('HTTP/1.1 404 File disabled');
+
+                        return null;
+                    }
+
+                    // play the song instead of going through all the crap
+                    header('Location: ' . $media->play_url());
+
+                    return null;
+                }
+                debug_event('play/index', "Error: RANDOM song could not be found", 3);
+                header('HTTP/1.1 404 File not found');
+
+                return null;
             }
         } // if random
 

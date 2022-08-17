@@ -13,6 +13,7 @@ global $dic;
 
 /** @var bool $isVideo  */
 /** @var bool $isRadio */
+/** @var Ampache\Module\Playback\Stream_Playlist $playlist */
 
 $environment   = $dic->get(EnvironmentInterface::class);
 $web_path      = AmpConfig::get('web_path');
@@ -162,6 +163,7 @@ $repeatoff  = addslashes(T_('Repeat Off')); ?>
                     if (brkey != '') {
                         sendBroadcastMessage('SONG', currentjpitem.attr("data-media_id"));
                     }
+                    var hideactions = false;
                     if (playlist[index]['media_type'] == "song") {
                         var currenttype = 'song'
                         var currentobject = 'song_id'
@@ -184,20 +186,27 @@ $repeatoff  = addslashes(T_('Repeat Off')); ?>
                         var currenttype = 'podcast_episode'
                         var currentobject = 'podcast_episode'
                         var actiontype = 'podcast_episode'
+                    } else if (playlist[index]['media_type'] == "democratic") {
+                        var currenttype = 'democratic'
+                        var currentobject = 'democratic'
+                        var hideactions = true;
                     } else if (playlist[index]['media_type'] == "random") {
                         var currenttype = 'random'
                         var currentobject = 'random'
+                        var hideactions = true;
                     } else {
                         var currenttype = 'song'
                         var currentobject = 'song_id'
+                        var actiontype = 'song'
                     }
 
                     <?php if (!$isVideo && !$isRadio && !$is_share) {
                     if ($iframed) {
+                        echo "if (!hideactions) {";
                         if (AmpConfig::get('sociable')) {
                             echo "ajaxPut(jsAjaxUrl + '?page=' + currenttype + '&action=shouts&object_type=' + currenttype + '&object_id=' + currentjpitem.attr('data-media_id'), 'shouts_data');";
                         }
-                        echo "ajaxPut(jsAjaxUrl + '?action=action_buttons&object_type=' + actiontype + '&object_id=' + currentjpitem.attr('data-media_id'));";
+                        echo "if (typeof actiontype !== 'undefined') { ajaxPut(jsAjaxUrl + '?action=action_buttons&object_type=' + actiontype + '&object_id=' + currentjpitem.attr('data-media_id')); }";
                         echo "var titleobj = (typeof actiontype !== 'undefined') ? '<a href=\"javascript:NavigateTo(\'" . $web_path . "/' + currenttype + '.php?action=show_' + currenttype + '&' + currentobject + '=' + currentjpitem.attr('data-media_id') + '\');\" title=\"' + obj.title + '\">' + obj.title + '</a>' : obj.title;";
                         echo "var artistobj = (currentjpitem.attr('data-artist_id') !== 'undefined') ? '<a href=\"javascript:NavigateTo(\'" . $web_path . "/artists.php?action=show&artist=' + currentjpitem.attr('data-artist_id') + '\');\" title=\"' + obj.artist + '\">' + obj.artist + '</a>' : obj.artist;";
                         echo "var lyricsobj = (typeof actiontype !== 'undefined' && currenttype === 'song') ? '<a href=\"javascript:NavigateTo(\'" . $web_path . "/' + currenttype + '.php?action=show_lyrics&' + currentobject + '=' + currentjpitem.attr('data-media_id') + '\');\">" . addslashes(T_('Show Lyrics')) . "</a>' : '';";
@@ -217,6 +226,10 @@ $repeatoff  = addslashes(T_('Repeat Off')); ?>
                                 echo "waveformobj += '</a>';";
                             }
                         }
+                        echo "} else {";
+                        echo "var titleobj = obj.title;";
+                        echo "var artistobj = obj.artist;";
+                        echo "}";
                     } else {
                         echo "var titleobj = obj.title;";
                         echo "var artistobj = obj.artist;";

@@ -1233,7 +1233,7 @@ class Song extends database_object implements Media, library_item, GarbageCollec
     {
         $array            = array();
         $array['change']  = false;
-        $array['element'] = false;
+        $array['element'] = array();
 
         // Pull out all the currently set vars
         $fields = get_object_vars($media);
@@ -1300,6 +1300,9 @@ class Song extends database_object implements Media, library_item, GarbageCollec
      */
     private static function clean_string_field_value($value)
     {
+        if (!$value) {
+            return '';
+        }
         $value = trim(stripslashes(preg_replace('/\s+/', ' ', $value)));
 
         // Strings containing  only UTF-8 BOM = empty string

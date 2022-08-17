@@ -833,25 +833,41 @@ class Search extends playlist_object
      */
     private function playlist_types()
     {
-        $this->type_text('title', T_('Name'));
+        $t_playlist = T_('Playlist');
+        $this->type_text('title', T_('Name'), $t_playlist);
         $playlist_types = array(
             0 => T_('public'),
             1 => T_('private')
         );
-        $this->type_select('type', T_('Type'), 'boolean_numeric', $playlist_types);
+        $this->type_select('type', T_('Type'), 'boolean_numeric', $playlist_types, $t_playlist);
         $users = $this->getUserRepository()->getValidArray();
-        $this->type_select('owner', T_('Owner'), 'user_numeric', $users);
+        $this->type_select('owner', T_('Owner'), 'user_numeric', $users, $t_playlist);
     }
 
     /**
      * podcast_types
      *
-     * this is where all the searchtypes for podcast_episodes are defined
+     * this is where all the searchtypes for podcasts are defined
      */
     private function podcast_types()
     {
-        $this->type_text('title', T_('Name'));
-        $this->type_text('podcast_episode', T_('Podcast Episodes'));
+        $t_podcasts = T_('Podcast');
+        $this->type_text('title', T_('Name'), $t_podcasts);
+
+        $t_podcast_episodes = T_('Podcast Episodes');
+        $this->type_text('podcast_episode', T_('Podcast Episode'), $t_podcast_episodes);
+        $episode_states = array(
+            0 => T_('skipped'),
+            1 => T_('pending'),
+            2 => T_('completed')
+        );
+        $this->type_select('state', T_('State'), 'boolean_numeric', $episode_states, $t_podcast_episodes);
+        $this->type_numeric('time', T_('Length (in minutes)'), 'numeric', $t_podcast_episodes);
+
+        $t_file_data = T_('File Data');
+        $this->type_text('file', T_('Filename'), $t_file_data);
+        $this->type_date('pubdate', T_('Publication Date'), $t_file_data);
+        $this->type_date('added', T_('Added'), $t_file_data);
     }
 
     /**
@@ -861,18 +877,21 @@ class Search extends playlist_object
      */
     private function podcast_episode_types()
     {
-        $this->type_text('title', T_('Name'));
-        $this->type_text('podcast', T_('Podcast'));
+        $t_podcast_episodes = T_('Podcast Episode');
+        $this->type_text('title', T_('Name'), $t_podcast_episodes);
+        $this->type_text('podcast', T_('Podcast'), $t_podcast_episodes);
         $episode_states = array(
             0 => T_('skipped'),
             1 => T_('pending'),
             2 => T_('completed')
         );
-        $this->type_select('state', T_('State'), 'boolean_numeric', $episode_states);
-        $this->type_numeric('time', T_('Length (in minutes)'));
-        $this->type_date('pubdate', T_('Publication Date'));
-        $this->type_date('added', T_('Added'));
-        $this->type_text('file', T_('Filename'));
+        $this->type_select('state', T_('State'), 'boolean_numeric', $episode_states, $t_podcast_episodes);
+        $this->type_numeric('time', T_('Length (in minutes)'), 'numeric', $t_podcast_episodes);
+
+        $t_file_data = T_('File Data');
+        $this->type_text('file', T_('Filename'), $t_file_data);
+        $this->type_date('pubdate', T_('Publication Date'), $t_file_data);
+        $this->type_date('added', T_('Added'), $t_file_data);
     }
 
     /**
@@ -2542,6 +2561,7 @@ class Search extends playlist_object
                     $parameters[] = $input;
                     break;
                 case 'smartplaylist':
+                    //debug_event(self::class, 'song_to_sql: SUBSEARCH ' . $input, 5);
                     $subsearch  = new Search($input, 'song', $this->search_user);
                     $results    = $subsearch->get_items();
                     $itemstring = '';
@@ -2942,6 +2962,43 @@ class Search extends playlist_object
                     break;
                 case 'podcast_episode_title':
                     $where[]                 = "`podcast_episode`.`title` $sql_match_operator ?";
+                    $parameters[]            = $input;
+                    $join['podcast_episode'] = true;
+                    break;
+                case 'time':
+                    $input                   = $input * 60;
+                    $where[]                 = "`podcast_episode`.`time` $sql_match_operator ?";
+                    $parameters[]            = $input;
+                    $join['podcast_episode'] = true;
+                    break;
+                case 'state':
+                    $where[]      = "`podcast_episode`.`state` $sql_match_operator ?";
+                    switch ($input) {
+                        case 0:
+                            $parameters[] = 'skipped';
+                            break;
+                        case 1:
+                            $parameters[] = 'pending';
+                            break;
+                        case 2:
+                            $parameters[] = 'completed';
+                    }
+                    $join['podcast_episode'] = true;
+                    break;
+                case 'pubdate':
+                    $input                   = strtotime((string) $input);
+                    $where[]                 = "`podcast_episode`.`pubdate` $sql_match_operator ?";
+                    $parameters[]            = $input;
+                    $join['podcast_episode'] = true;
+                    break;
+                case 'added':
+                    $input                   = strtotime((string) $input);
+                    $where[]                 = "`podcast_episode`.`addition_time` $sql_match_operator ?";
+                    $parameters[]            = $input;
+                    $join['podcast_episode'] = true;
+                    break;
+                case 'file':
+                    $where[]                 = "`podcast_episode`.`file` $sql_match_operator ?";
                     $parameters[]            = $input;
                     $join['podcast_episode'] = true;
                     break;
