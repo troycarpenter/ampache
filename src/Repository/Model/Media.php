@@ -37,11 +37,13 @@ interface Media
     /**
      * get_stream_types
      *
-     * Returns an array of strings; current types are 'native'
-     * and 'transcode'
-     * @param array $player
+     * Returns an array of strings
+     * 'native' = can be streamed natively
+     * 'transcode' = transcode required
+     * @param string $player
+     * @return array
      */
-    public function get_stream_types($player = array());
+    public function get_stream_types($player = null);
 
     /**
      * play_url
@@ -91,8 +93,8 @@ interface Media
 
     /**
      * remove
-     * Remove the song from disk.
-     * @return PDOStatement|boolean
+     * Delete the object from disk and/or database where applicable.
+     * @return bool
      */
     public function remove();
 }

@@ -62,7 +62,7 @@ abstract class AbstractEditAction implements ApplicationActionInterface
         );
 
         // Post first
-        $object_type = $_POST['type'] ?? filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+        $object_type = $_POST['type'] ?? filter_input(INPUT_GET, 'type', FILTER_SANITIZE_SPECIAL_CHARS);
         $object_id   = (int) Core::get_get('id');
 
         if (empty($object_type)) {
@@ -77,7 +77,7 @@ abstract class AbstractEditAction implements ApplicationActionInterface
             $object_type        = implode('_', explode('_', $object_type, -1));
         }
 
-        if (!InterfaceImplementationChecker::is_library_item($object_type) && !in_array($object_type, array('share', 'channel', 'tag', 'tag_hidden'))) {
+        if (!InterfaceImplementationChecker::is_library_item($object_type) && !in_array($object_type, array('share', 'tag', 'tag_hidden'))) {
             $this->logger->warning(
                 sprintf('Type `%d` is not based on an item library.', $object_type),
                 [LegacyLogger::CONTEXT_TYPE => __CLASS__]

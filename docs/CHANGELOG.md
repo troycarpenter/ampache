@@ -1,7 +1,109 @@
 # CHANGELOG
 
-
 ## Ampache develop
+
+### Added
+
+* Database 600001
+  * Add preference `webplayer_removeplayed`, Remove tracks before the current playlist item in the webplayer when played
+* Config version 63
+  * Drop Channels from config
+  * Reset the art_order defaults
+* search
+  * add song_genre to album and artist searches
+  * add possible_duplicate_album to song search
+  * add mbid_artist to album search
+  * alias possible_duplicate_album => possible_duplicate for album search
+  * alias album_genre => genre for album search
+  * alias mbid_album => mbid for album search
+  * alias mbid_artist => mbid for artist search
+  * alias song_genre => genre for song search
+* webplayer
+  * Enable restart on democratic or random play
+  * Allow removing played tracks on next
+
+### Changed
+
+* Remove Channels from Ampache (Use [icecast](https://github.com/ampache/ampache/wiki/Ampache-Icecast-and-Liquidsoap) instead)
+* Scrutinizer moved to php8.1
+* webplayer
+  * Only send songs (for now) to the 'Add all to playlist' button
+* Download url parameter order matching "client, action, cache"
+
+### Removed
+
+* Travic CI config file
+
+### Fixed
+
+* Work around for possible release string errors (future releasese will drop "-release")
+* Ignore case in genre comparison
+
+## API develop
+
+### Fixed
+
+* Api::songs set_filter call without browse parameter may have lost info
+* Api4::songs set_filter call without browse parameter may have lost info
+* Api::get_indexes set album_artist filter correctly
+* Api4::get_indexes set album_artist filter correctly
+* Api::artists set album_artist filter correctly
+
+## Ampache 5.5.2-develop
+
+### Added
+
+* webplayer
+  * Code cleanup and attempt to make it a bit less confusing
+
+### Fixed
+
+* Tmp_Playlist::get_items may not order by the playlist id
+* Fix album time update when time is NULL
+* Transcoding format for could be ignored (`encode_player_webplayer_target`)
+* Set the file extension based on expected transcode / download 
+* Don't look at the transcode cache when downloading a raw file
+* If you are transcoding redirect to the transcoded file
+* Download stats for song, video, podcast_episode
+* Set the file extension on urls on generation
+* webplayer
+  * Video types missing from supported types
+  * Playlist sorting issues
+
+## API 5.5.2-develop
+
+### Added
+
+* advanced_search
+  * Add song_artist as a search type (uses artist rules)
+  * Add album_artist as a search type (uses artist rules)
+
+### Fixed
+
+* advanced_search
+  * unable to retrieve song_artist or album_artist results
+
+## Ampache 5.5.1
+
+I made a mistake in the release string so we need a new point release already!
+
+You will get this error when using the zip releases so we need to do it. At least on the plus side you'll get the latest translations.
+
+### Added
+
+* Translation Updates August 2022
+* Grouping for label search items
+
+### Fixed
+
+* Release version string is incorrect and will tell you you have updates if you use the release files
+* Missing comma between label links on song pages
+
+## API 5.5.1
+
+**NO CHANGE**
+
+## Ampache 5.5.0
 
 Private catalogs have been given a lot of love. This feature allows you to assign a catalog to multiple users instead of just one.
 
@@ -9,16 +111,18 @@ Check out the [wiki](https://github.com/ampache/ampache/wiki/catalog-filters) fo
 
 **NOTE** Any user that has a private catalog will have their own filter group created which includes all public catalogs
 
-PHP8.1 has now been fixed up completely and is now full supported before PHP7.4 goes out of support
+PHP8.1 has now been fixed up completely and is now fully supported.
 
 ### Added
 
 * Update Copyright notice to 2022
 * Added a new option 'Random Play' (shuffle) to playlists and smartlists
 * Add 'Recently Skipped' to user pages
-* Add Podcase Episodes to the browse pages and sidebar
+* Add Podcast Episodes to the browse pages and sidebar
 * Translate podcast episode state and some other missing ones
 * Allow using a smartplaylist in Democratic play
+* Allow podcast_episode table sort by `time` and `state`
+* Allow podcast table sort by `website` and `episodes`
 * Database 550004
   * Add system preference `demo_use_search`, Use smartlists for base playlist in Democratic play
   * Add tables `catalog_filter_group` and `catalog_filter_group_map` for catalog filtering by groups
@@ -28,7 +132,8 @@ PHP8.1 has now been fixed up completely and is now full supported before PHP7.4 
   * Drop table `user_catalog`
   * Remove `filter_user` from the `catalog` table
 * Search
-* Added more missing groups to search type lists
+  * Added more missing groups to search type lists
+  * Added missing `song` (was `song_title`) to album searches
   * Add `podcast` as a search type
     * Add rule `title`
     * Add rule `podcast_episode` (Search by podcast episode name)
@@ -57,6 +162,8 @@ PHP8.1 has now been fixed up completely and is now full supported before PHP7.4 
 * Made getID function required for library_item's
 * Update codeql-analysis.yml to v2
 * When streaming a Democratic or Random item, redirect to the result
+* Hide 'is_true' boxes on search rows (you can't change it so why show it?)
+* Hide action buttons from random and demo webplayer lists
 
 ### Fixed
 
@@ -66,18 +173,29 @@ PHP8.1 has now been fixed up completely and is now full supported before PHP7.4 
 * Lots of docstring and code issues
 * Fixed up deleting plays (and now skips) on the user pages
 * Sorting playlist, user and smartlist names in search rows
-* SQL in get_tags with catalog_filter is disabled
+* SQL in get_tags when catalog_filter is disabled
 * A lot of browse filters were missing for certain object types
+* Don't try to load the playlist dialog from the webplayer when you can't add things
+* When using random/Democratic play send the additional parameters to the actual media
+* Respect play urls with transcode_to instead of format
+* Updated example `docs/examples/inotifywait.sh`
+* Podcast_episode browse may sent a camel case argument
+* Null max_upload_size could still be counted as a limit
 * Search
   * SQL might have connected AND and OR incorrectly
   * Metadata search might have badly parsed input
+  * Added aliases for some of the confusing search types
 * SubSonic
   * Checking parameters might return the error AND the empty response
 
-## API develop
+## API 5.5.0
+
+This will likely be the last 5.x API release. API6 will be a continuation of API5 and not be a significant change like the 4->5 transition.
 
 ### Added
 
+* Api::stream add new types `playlist` and `search` (Streams a random object from these lists)
+* Api::download add new types `playlist` and `search`
 * advanced_search
   * Add `podcast` as a search type
     * Add rule `title`
@@ -102,6 +220,8 @@ PHP8.1 has now been fixed up completely and is now full supported before PHP7.4 
 
 * API4::get_indexes podcast_episode was encoding into the API5 object
 * API4::share_create was unable to share when using lowercase types
+* advanced_search
+  * Added missing `song` (was `song_title`) to album searches
 
 ## Ampache 5.4.1-release
 

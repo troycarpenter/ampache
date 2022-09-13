@@ -141,7 +141,6 @@ class Podcast extends database_object implements library_item
      */
     public function format($details = true)
     {
-        $this->get_fullname();
         $this->f_description   = scrub_out($this->description);
         $this->f_language      = scrub_out($this->language);
         $this->f_copyright     = scrub_out($this->copyright);
@@ -638,7 +637,8 @@ class Podcast extends database_object implements library_item
 
     /**
      * remove
-     * @return string|null
+     * Delete the object from disk and/or database where applicable.
+     * @return bool
      */
     public function remove()
     {
@@ -649,13 +649,15 @@ class Podcast extends database_object implements library_item
         }
 
         $sql = "DELETE FROM `podcast` WHERE `id` = ?";
-        Dba::write($sql, array($this->id));
-        $insert_id = Dba::insert_id();
 
-        Catalog::count_table('podcast');
-        Catalog::count_table('podcast_episode');
+        if (Dba::write($sql, array($this->id)) !== false) {
+            Catalog::count_table('podcast');
+            Catalog::count_table('podcast_episode');
 
-        return $insert_id;
+            return true;
+        }
+
+        return false;
     }
 
     /**

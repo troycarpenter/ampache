@@ -61,7 +61,6 @@ class Browse extends Query
         'wanted',
         'share',
         'song_preview',
-        'channel',
         'broadcast',
         'license',
         'tvshow',
@@ -305,9 +304,13 @@ class Browse extends Query
                 $box_req   = Ui::find_template('show_users.inc.php');
                 break;
             case 'artist':
-                $box_title = ($this->is_album_artist())
-                    ? T_('Album Artists') . $match
-                    : T_('Artists') . $match;
+                if ($this->is_album_artist()) {
+                    $box_title = T_('Album Artist') . $match;
+                } elseif ($this->is_song_artist()) {
+                    $box_title = T_('Song Artist') . $match;
+                } else {
+                    $box_title = T_('Artist') . $match;
+                }
                 Artist::build_cache($object_ids, true, $limit_threshold);
                 $box_req = Ui::find_template('show_artists.inc.php');
                 break;
@@ -372,10 +375,6 @@ class Browse extends Query
             case 'song_preview':
                 $box_title = T_('Songs');
                 $box_req   = Ui::find_template('show_song_previews.inc.php');
-                break;
-            case 'channel':
-                $box_title = T_('Channels');
-                $box_req   = Ui::find_template('show_channels.inc.php');
                 break;
             case 'broadcast':
                 $box_title = T_('Broadcasts');
@@ -483,6 +482,18 @@ class Browse extends Query
      */
     public function set_type($type, $custom_base = '')
     {
+        if ($type === 'album_artist') {
+            $this->set_type('artist', $custom_base);
+            $this->set_album_artist(true);
+
+            return;
+        }
+        if ($type === 'song_artist') {
+            $this->set_type('artist', $custom_base);
+            $this->set_song_artist(true);
+
+            return;
+        }
         if (self::is_valid_type($type)) {
             $name = 'browse_' . $type . '_pages';
             if ((isset($_COOKIE[$name]))) {
@@ -588,12 +599,34 @@ class Browse extends Query
 
     /**
      *
+     * @param boolean $song_artist
+     */
+    public function set_song_artist($song_artist)
+    {
+        $this->_state['song_artist'] = $song_artist;
+    }
+
+    /**
+     *
      * @return boolean
      */
     public function is_album_artist()
     {
         if (array_key_exists('album_artist', $this->_state)) {
             return make_bool($this->_state['album_artist']);
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @return boolean
+     */
+    public function is_song_artist()
+    {
+        if (array_key_exists('song_artist', $this->_state)) {
+            return make_bool($this->_state['song_artist']);
         }
 
         return false;

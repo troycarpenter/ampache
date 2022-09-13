@@ -127,8 +127,9 @@ $jQueryContextMenu = (is_dir(__DIR__ . '/../lib/components/jquery-contextmenu'))
             var jsAjaxUrl = "<?php echo $ajaxUriRetriever->getAjaxUri(); ?>";
             var jsWebPath = "<?php echo $web_path; ?>";
             var jsAjaxServer = "<?php echo $ajaxUriRetriever->getAjaxServerUri(); ?>";
-            var jsSaveTitle = "<?php echo T_('Save') ?>";
-            var jsCancelTitle = "<?php echo T_('Cancel') ?>";
+            var jsSiteTitle = "<?php echo addslashes(AmpConfig::get('site_title', '')) ?>";
+            var jsSaveTitle = "<?php echo addslashes(T_('Save')) ?>";
+            var jsCancelTitle = "<?php echo addslashes(T_('Cancel')) ?>";
         </script>
 
         <?php if ($site_ajax) {
@@ -154,6 +155,16 @@ $jQueryContextMenu = (is_dir(__DIR__ . '/../lib/components/jquery-contextmenu'))
 
                 return btoa(window.location.href.substring(jsWebPath.length + 1));
             }
+            $(document).ajaxSuccess(function() {
+                var title = window.location.hash.replace(/[#$&=_?]/g, ' ');
+                title = title.replace(/\b(?:index|action|type|tab|.php|\[\]|[a-z]*_id|[0-9]*)\b/gi, ' ');
+                title = title.trim();
+                if (title !== '') {
+                    document.title = title + ' | ' + jsSiteTitle;
+                } else {
+                    document.title = jsSiteTitle;
+                }
+            });
         </script>
         <?php
             } else { ?>
@@ -437,7 +448,7 @@ $jQueryContextMenu = (is_dir(__DIR__ . '/../lib/components/jquery-contextmenu'))
                     </a>
                 </div>
                 <?php } ?>
-                <?php if (AmpConfig::get('allow_upload') && Access::check('interface', 25)) { ?>
+                <?php if (AmpConfig::get('allow_upload') && Access::check('interface', 25) && AmpConfig::get('upload_catalog') > 0) { ?>
                 <div class="topmenu_item">
                     <a href="<?php echo $web_path; ?>/upload.php">
                         <?php echo Ui::get_image('topmenu-upload', $t_upload); ?>

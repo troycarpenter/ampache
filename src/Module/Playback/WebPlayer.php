@@ -26,6 +26,7 @@ namespace Ampache\Module\Playback;
 
 use Ampache\Module\System\Core;
 use Ampache\Repository\Model\Media;
+use Ampache\Module\Playback\Stream;
 use Ampache\Module\Util\InterfaceImplementationChecker;
 use Ampache\Module\Util\ObjectTypeToClassNameMapper;
 use Ampache\Config\AmpConfig;
@@ -63,6 +64,26 @@ class WebPlayer
     public static function is_playlist_video($playlist)
     {
         return (count($playlist->urls) > 0 && $playlist->urls[0]->type == "video");
+    }
+
+    /**
+     * Check if the playlist is a random playlist.
+     * @param Stream_Playlist $playlist
+     * @return boolean
+     */
+    public static function is_playlist_random($playlist)
+    {
+        return (count($playlist->urls) > 0 && $playlist->urls[0]->title == "Random");
+    }
+
+    /**
+     * Check if the playlist is a democratic playlist.
+     * @param Stream_Playlist $playlist
+     * @return boolean
+     */
+    public static function is_playlist_democratic($playlist)
+    {
+        return (count($playlist->urls) > 0 && $playlist->urls[0]->title == "Democratic");
     }
 
     /**
@@ -133,9 +154,9 @@ class WebPlayer
      */
     public static function get_media_types($urlinfo, $types, $file_type, $transcode)
     {
-        if (!$transcode) {
-            $types['real'] = $file_type;
-        }
+        $types['real'] = ($transcode)
+            ? Stream::get_transcode_format($file_type, null, 'webplayer', $urlinfo['type'])
+            : $file_type;
 
         if ($urlinfo['type'] == 'song' || $urlinfo['type'] == 'podcast_episode') {
             if ($types['real'] == "ogg" || $types['real'] == "opus") {
@@ -145,17 +166,16 @@ class WebPlayer
                     $types['player'] = "m4a";
                 }
             }
-        } else {
-            if ($urlinfo['type'] == 'video') {
-                if ($types['real'] == "ogg") {
-                    $types['player'] = "ogv";
+        }
+        if ($urlinfo['type'] == 'video') {
+            if ($types['real'] == "ogg") {
+                $types['player'] = "ogv";
+            } else {
+                if ($types['real'] == "webm") {
+                    $types['player'] = "webmv";
                 } else {
-                    if ($types['real'] == "webm") {
-                        $types['player'] = "webmv";
-                    } else {
-                        if ($types['real'] == "mp4") {
-                            $types['player'] = "m4v";
-                        }
+                    if ($types['real'] == "mp4") {
+                        $types['player'] = "m4v";
                     }
                 }
             }

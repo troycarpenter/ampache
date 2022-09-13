@@ -163,14 +163,6 @@ class Query
             'allow_download',
             'expire'
         ),
-        'channel' => array(
-            'id',
-            'name',
-            'interface',
-            'port',
-            'max_listeners',
-            'listeners'
-        ),
         'broadcast' => array(
             'name',
             'user',
@@ -238,6 +230,8 @@ class Query
         ),
         'podcast' => array(
             'title',
+            'website',
+            'episodes',
             'random'
         ),
         'podcast_episode' => array(
@@ -245,7 +239,8 @@ class Query
             'category',
             'author',
             'time',
-            'pubDate',
+            'pubdate',
+            'state',
             'random'
         )
     ];
@@ -592,7 +587,6 @@ class Query
                     'add_gt',
                     'update_lt',
                     'update_gt',
-                    'show_art',
                     'starts_with',
                     'exact_match',
                     'alpha_match',
@@ -749,7 +743,6 @@ class Query
             case 'wanted':
             case 'share':
             case 'song_preview':
-            case 'channel':
             case 'broadcast':
             case 'license':
             case 'tvshow':
@@ -1097,10 +1090,6 @@ class Query
                 case 'share':
                     $this->set_select("`share`.`id`");
                     $sql = "SELECT %%SELECT%% FROM `share` ";
-                    break;
-                case 'channel':
-                    $this->set_select("`channel`.`id`");
-                    $sql = "SELECT %%SELECT%% FROM `channel` ";
                     break;
                 case 'broadcast':
                     $this->set_select("`broadcast`.`id`");
@@ -2139,17 +2128,6 @@ class Query
                         break;
                 } // end switch on field
                 break;
-            case 'channel':
-                switch ($field) {
-                    case 'name':
-                    case 'interface':
-                    case 'port':
-                    case 'max_listeners':
-                    case 'listeners':
-                        $sql = "`channel`.`$field`";
-                        break;
-                } // end switch on field
-                break;
             case 'broadcast':
                 switch ($field) {
                     case 'name':
@@ -2261,7 +2239,9 @@ class Query
             case 'podcast':
                 switch ($field) {
                     case 'title':
-                        $sql = "`podcast`.`title`";
+                    case 'website':
+                    case 'episodes':
+                        $sql = "`podcast`.`$field`";
                         break;
                 }
                 break;
@@ -2271,7 +2251,8 @@ class Query
                     case 'category':
                     case 'author':
                     case 'time':
-                    case 'pubDate':
+                    case 'pubdate':
+                    case 'state':
                         $sql = "`podcast_episode`.`$field`";
                         break;
                 }

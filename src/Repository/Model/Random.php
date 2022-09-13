@@ -378,15 +378,10 @@ class Random
      */
     private static function advanced_sql($data, $type, $limit_sql)
     {
+        $search = new Search(null, $type);
+        $search->set_rules($data);
+        $search_info     = $search->to_sql();
         $catalog_disable = AmpConfig::get('catalog_disable');
-        $search_data     = Search::clean_request($data);
-        $search_info     = false;
-
-        if (count($search_data) > 1) {
-            $search = new Search(null, $type);
-            $search->parse_rules($search_data);
-            $search_info = $search->to_sql();
-        }
 
         $catalog_disable_sql = "";
         if ($catalog_disable) {
@@ -448,6 +443,8 @@ class Random
     /**
      * get_play_url
      * This returns the special play URL for random play
+     * @param string $object_type
+     * @param int $object_id
      */
     public static function get_play_url($object_type, $object_id)
     {
